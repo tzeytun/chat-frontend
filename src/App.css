@@ -1,0 +1,190 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Trebuchet MS', Tahoma, sans-serif;
+  background: #0c0c0c url('https://images8.alphacoders.com/135/thumb-1920-1354126.jpeg') no-repeat center center fixed;
+  background-size: cover;
+  height: 100%;
+}
+
+.app-container {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.blurred::before {
+  content: '';
+  backdrop-filter: blur(6px);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fefefe;
+  border: 2px solid #444;
+  padding: 2rem;
+  z-index: 2;
+  box-shadow: 0 0 12px rgba(0,0,0,0.4);
+  text-align: center;
+  border-radius: 10px;
+  font-family: 'Trebuchet MS', Tahoma, sans-serif;
+}
+
+.modal input {
+  margin: 1rem 0;
+  padding: 0.6rem 0.8rem;
+  width: 80%;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); 
+  font-family: 'Trebuchet MS', Tahoma, sans-serif;
+}
+
+.modal button {
+  padding: 0.6rem 1.2rem;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+  font-family: 'Trebuchet MS', Tahoma, sans-serif;
+}
+
+.modal button:hover {
+  background: #45a049;
+}
+
+.chatbox {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  border: 2px solid #333;
+  padding: 2rem;
+  width: 500px;
+  box-shadow: 5px 5px 20px rgba(0,0,0,0.5);
+  border-radius: 10px;
+  font-family: 'Trebuchet MS', Tahoma, sans-serif;
+}
+
+.chat-log {
+  height: 200px;
+  overflow-y: auto;
+  border: 1px solid #aaa;
+  padding: 0.5rem;
+  background: #f1f1f1;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: 'Trebuchet MS', Tahoma, sans-serif;
+}
+
+.input-area {
+  display: flex;
+  gap: 1rem;
+}
+
+.input-area input {
+  flex-grow: 1;
+  padding: 0.5rem 0.8rem;
+  font-size: 1rem;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  outline: none;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.1);
+  font-family: 'Trebuchet MS', Tahoma, sans-serif;
+}
+
+.input-area button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #0078d7;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.input-area button:hover {
+  background-color: #0064bd;
+}
+
+.typing-indicator {
+  font-style: italic;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.user-list {
+  margin-bottom: 1rem;
+}
+
+.chatbox h2 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+  letter-spacing: 1px;
+   text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 600px) {
+  .chatbox, .modal {
+    width: 90%;
+    padding: 1.2rem;
+    border-radius: 8px;
+  }
+
+  .modal input,
+  .input-area input {
+    width: 100%;
+    font-size: 0.95rem;
+  }
+
+  .modal button,
+  .input-area button {
+    width: 100%;
+    padding: 0.6rem;
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+  }
+
+  .input-area {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .chat-log {
+    height: 160px;
+    font-size: 0.9rem;
+  }
+
+  .chatbox h2,
+  .modal h2 {
+    font-size: 1.2rem;
+  }
+
+  .typing-indicator {
+    font-size: 0.9rem;
+  }
+
+  .user-list ul {
+    padding-left: 1rem;
+    font-size: 0.9rem;
+  }
+
+}
+
