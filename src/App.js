@@ -31,6 +31,17 @@ function App() {
     socketRef.current.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+
+        // Hata mesajı varsa yakala ve geri döndür
+    if (data.type === 'error') {
+      alert(data.content); // veya modal göster
+      socketRef.current.close(); // bağlantıyı kapat
+      setIsLoggedIn(false); // tekrar login ekranına döndür
+      setUsername(''); // kullanıcı adı sıfırlanır
+      return;
+    }
+
+
         if (data.type === 'userlist') {
           console.log("Gelen kullanıcı listesi:", data.users);
           setOnlineUsers(data.users);
