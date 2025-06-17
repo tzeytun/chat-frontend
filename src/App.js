@@ -8,6 +8,7 @@ function App() {
   const [chatLog, setChatLog] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [typingUser, setTypingUser] = useState('');
+  const [inputError, setInputError] = useState('');
 
   const socketRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -115,6 +116,8 @@ function App() {
             }}
             placeholder="Kullanıcı adınızı girin..."
           />
+
+          {inputError && <p style={{ color: 'red' }}>{inputError}</p>}
           <button onClick={() => {
             if (username.trim() !== '') setIsLoggedIn(true);
           }}>Sohbete Gir</button>
