@@ -93,7 +93,15 @@ function App() {
           <input
             type="text"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => {
+              const input = e.target.value;
+  if (/^[a-zA-Z0-9]{0,20}$/.test(input)) {
+    setUsername(input);
+    setInputError('');
+    } else {
+      setInputError('Sadece harf ve rakam kullanın! (max 20 karakter)');
+    }
+            }}
             placeholder="Kullanıcı adınızı girin..."
           />
           <button onClick={() => {
