@@ -1,47 +1,59 @@
-import { useState, useEffect, useRef } from 'react';
-import './App.css';
+import { useState, useEffect, useRef } from "react";
+import "./App.css";
 
 function App() {
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [chatLog, setChatLog] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
-  const [typingUser, setTypingUser] = useState('');
-  const [inputError, setInputError] = useState('');
+  const [typingUser, setTypingUser] = useState("");
+  const [inputError, setInputError] = useState("");
 
   const socketRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const chatLogRef = useRef(null);
 
-  // Mesajları ve eventleri dinle
+  // WebSocket bağlantısını ve event handler'larını sadece bir kere kur
   useEffect(() => {
-    if (!socketRef.current) return;
+    if (!isLoggedIn || socketRef.current) return;
+
+    socketRef.current = new WebSocket(process.env.REACT_APP_WEBSOCKET_URL);
+
+    socketRef.current.onopen = () => {
+      socketRef.current.send(
+        JSON.stringify({
+          type: "join",
+          username: username.trim(),
+        })
+      );
+    };
 
     socketRef.current.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
 
-        if (data.type === 'error') {
+        if (data.type === "error") {
           alert(data.content);
           socketRef.current.close();
-          setUsername('');
+          socketRef.current = null;
+          setUsername("");
           setIsLoggedIn(false);
           return;
         }
 
-        if (data.type === 'userlist') {
+        if (data.type === "userlist") {
           setOnlineUsers(data.users);
           setIsLoggedIn(true);
         }
 
-        if (data.type === 'typing' && data.username !== username) {
+        if (data.type === "typing" && data.username !== username) {
           setTypingUser(data.username);
           clearTimeout(typingTimeoutRef.current);
-          typingTimeoutRef.current = setTimeout(() => setTypingUser(''), 1500);
+          typingTimeoutRef.current = setTimeout(() => setTypingUser(""), 1500);
         }
 
-        if (data.type === 'message' || data.type === 'system') {
+        if (data.type === "message" || data.type === "system") {
           setChatLog((prev) => [...prev, data]);
         }
       } catch (err) {
@@ -50,8 +62,21 @@ function App() {
     };
 
     socketRef.current.onclose = () => {
-      console.log("Bağlantı kapandı.");
+      socketRef.current = null;
+      setIsLoggedIn(false);
+      setOnlineUsers([]);
+      setChatLog([]);
+      setTypingUser("");
     };
+
+    // Temizlik: component unmount olursa bağlantıyı kapat
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close();
+        socketRef.current = null;
+      }
+    };
+    // eslint-disable-next-line
   }, [isLoggedIn, username]);
 
   // Otomatik scroll
@@ -65,21 +90,29 @@ function App() {
     const newMessage = e.target.value;
     setMessage(newMessage);
 
-    if (socketRef.current && isLoggedIn) {
-      socketRef.current.send(JSON.stringify({
-        type: 'typing',
-        username,
-      }));
+    if (socketRef.current && socketRef.current.readyState === 1 && isLoggedIn) {
+      socketRef.current.send(
+        JSON.stringify({
+          type: "typing",
+          username,
+        })
+      );
     }
   };
 
   const sendMessage = () => {
-    if (socketRef.current && message.trim() !== '') {
-      socketRef.current.send(JSON.stringify({
-        username,
-        content: message,
-      }));
-      setMessage('');
+    if (
+      socketRef.current &&
+      socketRef.current.readyState === 1 &&
+      message.trim() !== ""
+    ) {
+      socketRef.current.send(
+        JSON.stringify({
+          username,
+          content: message,
+        })
+      );
+      setMessage("");
     }
   };
 
@@ -87,22 +120,17 @@ function App() {
     const cleaned = username.trim();
 
     if (!/^[a-zA-Z0-9]{1,20}$/.test(cleaned)) {
-      setInputError("Geçersiz kullanıcı adı. (Sadece harf/rakam, 1-20 karakter)");
+      setInputError(
+        "Geçersiz kullanıcı adı. (Sadece harf/rakam, 1-20 karakter)"
+      );
       return;
     }
 
-    socketRef.current = new WebSocket(process.env.REACT_APP_WEBSOCKET_URL);
-
-    socketRef.current.onopen = () => {
-      socketRef.current.send(JSON.stringify({
-        type: "join",
-        username: cleaned,
-      }));
-    };
+    setIsLoggedIn(true); // Bağlantı açılmasını tetikle
   };
 
   return (
-    <div className={`app-container ${!isLoggedIn ? 'blurred' : ''}`}>
+    <div className={`app-container ${!isLoggedIn ? "blurred" : ""}`}>
       {!isLoggedIn && (
         <div className="modal">
           <h2>Kullanıcı Adı</h2>
@@ -113,14 +141,16 @@ function App() {
               const input = e.target.value;
               if (/^[a-zA-Z0-9]{0,20}$/.test(input)) {
                 setUsername(input);
-                setInputError('');
+                setInputError("");
               } else {
-                setInputError('Sadece harf ve rakam kullanın! (max 20 karakter)');
+                setInputError(
+                  "Sadece harf ve rakam kullanın! (max 20 karakter)"
+                );
               }
             }}
             placeholder="Kullanıcı adınızı girin..."
           />
-          {inputError && <p style={{ color: 'red' }}>{inputError}</p>}
+          {inputError && <p style={{ color: "red" }}>{inputError}</p>}
           <button onClick={handleLogin}>Sohbete Gir</button>
         </div>
       )}
@@ -141,11 +171,12 @@ function App() {
           <div className="chat-log" ref={chatLogRef}>
             {chatLog.map((msg, idx) => (
               <div key={idx}>
-                {msg.type === 'system' ? (
-                  <em style={{ color: '#888' }}>— {msg.content} —</em>
+                {msg.type === "system" ? (
+                  <em style={{ color: "#888" }}>— {msg.content} —</em>
                 ) : (
                   <span>
-                    {msg.time ? ` (${msg.time})` : ''} <strong>{msg.username}</strong>: {msg.content}
+                    {msg.time ? ` (${msg.time})` : ""}{" "}
+                    <strong>{msg.username}</strong>: {msg.content}
                   </span>
                 )}
               </div>
@@ -158,14 +189,16 @@ function App() {
               value={message}
               onChange={handleInputChange}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') sendMessage();
+                if (e.key === "Enter") sendMessage();
               }}
               placeholder="Bir şeyler yaz..."
             />
             <button onClick={sendMessage}>Gönder</button>
           </div>
 
-          {typingUser && <p className="typing-indicator">{typingUser} yazıyor...</p>}
+          {typingUser && (
+            <p className="typing-indicator">{typingUser} yazıyor...</p>
+          )}
         </div>
       )}
     </div>
