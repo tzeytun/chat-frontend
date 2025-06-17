@@ -127,7 +127,7 @@ function App() {
       return;
     }
 
-    setIsLoggedIn(true);
+    setUsername(cleaned);;
   };
 
   return (
