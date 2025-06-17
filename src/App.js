@@ -15,60 +15,6 @@ function App() {
   const chatLogRef = useRef(null);
 
 
-  useEffect(() => {
-    if (!isLoggedIn) return;
-
-    socketRef.current = new WebSocket(process.env.REACT_APP_WEBSOCKET_URL);
-
-    socketRef.current.onopen = () => {
-      socketRef.current.send(JSON.stringify({
-        type: "join",
-        username: username,
-      }));
-    };
-
-    
-
-    socketRef.current.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-
-        // Hata mesajı varsa yakala ve geri döndür
-    if (data.type === 'error') {
-      alert(data.content); // veya modal göster
-      socketRef.current.close(); // bağlantıyı kapat
-      setIsLoggedIn(false); // tekrar login ekranına döndür
-      setUsername(''); // kullanıcı adı sıfırlanır
-      return;
-    }
-
-
-        if (data.type === 'userlist') {
-          console.log("Gelen kullanıcı listesi:", data.users);
-          setOnlineUsers(data.users);
-        } else if (data.type === 'typing') {
-          if (data.username !== username) {
-            setTypingUser(data.username);
-            clearTimeout(typingTimeoutRef.current);
-            typingTimeoutRef.current = setTimeout(() => {
-              setTypingUser('');
-            }, 1500);
-          }
-        } else if (data.type === 'message' || data.type === 'system') {
-          setChatLog((prev) => [...prev, data]);
-        }
-      } catch (error) {
-        console.error("Gelen veri ayrıştırılamadı:", event.data);
-      }
-    };
-
-    socketRef.current.onclose = () => {
-      console.log('Bağlantı kapandı.');
-    };
-
-    return () => socketRef.current?.close();
-  }, [isLoggedIn, username]);
-
   useEffect(() => {       
     if (chatLogRef.current) {
       chatLogRef.current.scrollTop = chatLogRef.current.scrollHeight;
@@ -119,8 +65,48 @@ function App() {
 
           {inputError && <p style={{ color: 'red' }}>{inputError}</p>}
           <button onClick={() => {
-            if (username.trim() !== '') setIsLoggedIn(true);
-          }}>Sohbete Gir</button>
+            // WebSocket bağlantısını burada başlatıyoruz
+  const cleaned = username.trim();
+  if (!/^[a-zA-Z0-9]{1,20}$/.test(cleaned)) {
+    setInputError("Geçersiz kullanıcı adı.");
+    return;
+  }
+
+  socketRef.current = new WebSocket(process.env.REACT_APP_WEBSOCKET_URL);
+
+  socketRef.current.onopen = () => {
+    socketRef.current.send(JSON.stringify({
+      type: "join",
+      username: cleaned,
+    }));
+  };
+socketRef.current.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+
+      if (data.type === "error") {
+        alert(data.content);
+        socketRef.current.close();
+        setUsername('');
+        return;
+      }
+
+      if (data.type === "userlist") {
+        setOnlineUsers(data.users);
+        setIsLoggedIn(true);
+      }
+      // diğer handler'lar
+    } catch (err) {
+      console.error("Mesaj ayrıştırılamadı:", err);
+    }
+  };
+
+  socketRef.current.onclose = () => {
+    console.log("Bağlantı kapandı.");
+  };
+}}>
+  Sohbete Gir
+</button>
         </div>
       )}
 
