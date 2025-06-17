@@ -18,72 +18,77 @@ function App() {
   const socketURL = process.env.REACT_APP_WEBSOCKET_URL;
 
   useEffect(() => {
-  if (!shouldConnect || socketRef.current) return;
+    if (!shouldConnect || socketRef.current) return;
 
-  socketRef.current = new WebSocket(socketURL);
+    socketRef.current = new WebSocket(socketURL);
 
-  socketRef.current.onopen = () => {
-    socketRef.current.send(
-      JSON.stringify({
-        type: "join",
-        username: username.trim(),
-      })
-    );
-  };
+    socketRef.current.onopen = () => {
+      socketRef.current.send(
+        JSON.stringify({
+          type: "join",
+          username: username.trim(),
+        })
+      );
+    };
 
-  socketRef.current.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data);
+    socketRef.current.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
 
-      switch (data.type) {
-        case "error":
-          alert(data.content);
-          socketRef.current.close();
-          socketRef.current = null;
-          setUsername("");
-          setShouldConnect(false);
-          setIsLoggedIn(false);
-          break;
-        case "userlist":
-          setOnlineUsers(data.users);
-          setIsLoggedIn(true);
-          break;
-        case "typing":
-          if (data.username !== username) {
-            setTypingUser(data.username);
-            clearTimeout(typingTimeoutRef.current);
-            typingTimeoutRef.current = setTimeout(() => setTypingUser(""), 1500);
-          }
-          break;
-        case "message":
-        case "system":
-          setChatLog((prev) => [...prev, data]);
-          break;
-        default:
-          console.warn("Bilinmeyen mesaj tipi:", data);
+        switch (data.type) {
+          case "error":
+            if (data.error === "username_taken") {
+              alert(data.content);
+              socketRef.current.close();
+              socketRef.current = null;
+              setUsername("");
+              setShouldConnect(false);
+              setIsLoggedIn(false);
+            } else if (data.error === "cooldown") {
+              alert(data.content); // sadece uyarı
+            } else {
+              console.warn("Bilinmeyen hata:", data);
+            }
+            break;
+          case "userlist":
+            setOnlineUsers(data.users);
+            setIsLoggedIn(true);
+            break;
+          case "typing":
+            if (data.username !== username) {
+              setTypingUser(data.username);
+              clearTimeout(typingTimeoutRef.current);
+              typingTimeoutRef.current = setTimeout(() => setTypingUser(""), 1500);
+            }
+            break;
+          case "message":
+          case "system":
+            setChatLog((prev) => [...prev, data]);
+            break;
+          default:
+            console.warn("Bilinmeyen mesaj tipi:", data);
+        }
+      } catch (err) {
+        console.error("Mesaj ayrıştırılamadı:", err);
       }
-    } catch (err) {
-      console.error("Mesaj ayrıştırılamadı:", err);
-    }
-  };
+    };
 
-  socketRef.current.onclose = () => {
-    socketRef.current = null;
-    setIsLoggedIn(false);
-    setOnlineUsers([]);
-    setChatLog([]);
-    setTypingUser("");
-    setShouldConnect(false);
-  };
-
-  return () => {
-    if (socketRef.current) {
-      socketRef.current.close();
+    socketRef.current.onclose = () => {
       socketRef.current = null;
-    }
-  };
-}, [shouldConnect, username]);
+      setIsLoggedIn(false);
+      setOnlineUsers([]);
+      setChatLog([]);
+      setTypingUser("");
+      setShouldConnect(false);
+    };
 
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close();
+        socketRef.current = null;
+      }
+    };
+  }, [shouldConnect, username]);
 
   useEffect(() => {
     if (chatLogRef.current) {
