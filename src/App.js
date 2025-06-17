@@ -107,11 +107,13 @@ function App() {
       message.trim() !== ""
     ) {
       socketRef.current.send(
-        JSON.stringify({
-          username,
-          content: message,
-        })
-      );
+  JSON.stringify({
+    type: "message",
+    username,
+    content: message,
+  })
+);
+
       setMessage("");
     }
   };
