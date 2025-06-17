@@ -128,7 +128,7 @@ function App() {
   };
 
   const handleLogin = () => {
-    const cleaned = username.trim();
+    const cleaned = username.trim().toLowerCase();
 
     if (!/^[a-zA-Z0-9]{1,20}$/.test(cleaned)) {
       setInputError("Geçersiz kullanıcı adı. (Sadece harf/rakam, 1-20 karakter)");
