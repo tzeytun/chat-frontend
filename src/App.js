@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import './App.css'; 
+import './App.css';
 
 function App() {
   const [username, setUsername] = useState('');
@@ -14,8 +14,48 @@ function App() {
   const typingTimeoutRef = useRef(null);
   const chatLogRef = useRef(null);
 
+  // Mesajları ve eventleri dinle
+  useEffect(() => {
+    if (!socketRef.current) return;
 
-  useEffect(() => {       
+    socketRef.current.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+
+        if (data.type === 'error') {
+          alert(data.content);
+          socketRef.current.close();
+          setUsername('');
+          setIsLoggedIn(false);
+          return;
+        }
+
+        if (data.type === 'userlist') {
+          setOnlineUsers(data.users);
+          setIsLoggedIn(true);
+        }
+
+        if (data.type === 'typing' && data.username !== username) {
+          setTypingUser(data.username);
+          clearTimeout(typingTimeoutRef.current);
+          typingTimeoutRef.current = setTimeout(() => setTypingUser(''), 1500);
+        }
+
+        if (data.type === 'message' || data.type === 'system') {
+          setChatLog((prev) => [...prev, data]);
+        }
+      } catch (err) {
+        console.error("Mesaj ayrıştırılamadı:", err);
+      }
+    };
+
+    socketRef.current.onclose = () => {
+      console.log("Bağlantı kapandı.");
+    };
+  }, [isLoggedIn, username]);
+
+  // Otomatik scroll
+  useEffect(() => {
     if (chatLogRef.current) {
       chatLogRef.current.scrollTop = chatLogRef.current.scrollHeight;
     }
@@ -28,7 +68,7 @@ function App() {
     if (socketRef.current && isLoggedIn) {
       socketRef.current.send(JSON.stringify({
         type: 'typing',
-        username: username
+        username,
       }));
     }
   };
@@ -37,10 +77,28 @@ function App() {
     if (socketRef.current && message.trim() !== '') {
       socketRef.current.send(JSON.stringify({
         username,
-        content: message
+        content: message,
       }));
       setMessage('');
     }
+  };
+
+  const handleLogin = () => {
+    const cleaned = username.trim();
+
+    if (!/^[a-zA-Z0-9]{1,20}$/.test(cleaned)) {
+      setInputError("Geçersiz kullanıcı adı. (Sadece harf/rakam, 1-20 karakter)");
+      return;
+    }
+
+    socketRef.current = new WebSocket(process.env.REACT_APP_WEBSOCKET_URL);
+
+    socketRef.current.onopen = () => {
+      socketRef.current.send(JSON.stringify({
+        type: "join",
+        username: cleaned,
+      }));
+    };
   };
 
   return (
@@ -53,60 +111,17 @@ function App() {
             value={username}
             onChange={(e) => {
               const input = e.target.value;
-  if (/^[a-zA-Z0-9]{0,20}$/.test(input)) {
-    setUsername(input);
-    setInputError('');
-    } else {
-      setInputError('Sadece harf ve rakam kullanın! (max 20 karakter)');
-    }
+              if (/^[a-zA-Z0-9]{0,20}$/.test(input)) {
+                setUsername(input);
+                setInputError('');
+              } else {
+                setInputError('Sadece harf ve rakam kullanın! (max 20 karakter)');
+              }
             }}
             placeholder="Kullanıcı adınızı girin..."
           />
-
           {inputError && <p style={{ color: 'red' }}>{inputError}</p>}
-          <button onClick={() => {
-            // WebSocket bağlantısını burada başlatıyoruz
-  const cleaned = username.trim();
-  if (!/^[a-zA-Z0-9]{1,20}$/.test(cleaned)) {
-    setInputError("Geçersiz kullanıcı adı.");
-    return;
-  }
-
-  socketRef.current = new WebSocket(process.env.REACT_APP_WEBSOCKET_URL);
-
-  socketRef.current.onopen = () => {
-    socketRef.current.send(JSON.stringify({
-      type: "join",
-      username: cleaned,
-    }));
-  };
-socketRef.current.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data);
-
-      if (data.type === "error") {
-        alert(data.content);
-        socketRef.current.close();
-        setUsername('');
-        return;
-      }
-
-      if (data.type === "userlist") {
-        setOnlineUsers(data.users);
-        setIsLoggedIn(true);
-      }
-      // diğer handler'lar
-    } catch (err) {
-      console.error("Mesaj ayrıştırılamadı:", err);
-    }
-  };
-
-  socketRef.current.onclose = () => {
-    console.log("Bağlantı kapandı.");
-  };
-}}>
-  Sohbete Gir
-</button>
+          <button onClick={handleLogin}>Sohbete Gir</button>
         </div>
       )}
 
@@ -123,15 +138,15 @@ socketRef.current.onmessage = (event) => {
             </ul>
           </div>
 
-          <div 
-          className="chat-log"
-          ref={chatLogRef}>
+          <div className="chat-log" ref={chatLogRef}>
             {chatLog.map((msg, idx) => (
               <div key={idx}>
                 {msg.type === 'system' ? (
                   <em style={{ color: '#888' }}>— {msg.content} —</em>
                 ) : (
-                  <span>{msg.time ? ` (${msg.time})` : ''} <strong>{msg.username}</strong>: {msg.content}</span>
+                  <span>
+                    {msg.time ? ` (${msg.time})` : ''} <strong>{msg.username}</strong>: {msg.content}
+                  </span>
                 )}
               </div>
             ))}
@@ -143,8 +158,8 @@ socketRef.current.onmessage = (event) => {
               value={message}
               onChange={handleInputChange}
               onKeyDown={(e) => {
-    if (e.key === 'Enter') sendMessage();
-    }}
+                if (e.key === 'Enter') sendMessage();
+              }}
               placeholder="Bir şeyler yaz..."
             />
             <button onClick={sendMessage}>Gönder</button>
