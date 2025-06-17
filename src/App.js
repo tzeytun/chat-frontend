@@ -11,6 +11,8 @@ function App() {
 
   const socketRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+  const chatLogRef = useRef(null);
+
 
   useEffect(() => {
     if (!isLoggedIn) return;
@@ -24,10 +26,13 @@ function App() {
       }));
     };
 
+    
+
     socketRef.current.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
         if (data.type === 'userlist') {
+          console.log("Gelen kullanıcı listesi:", data.users);
           setOnlineUsers(data.users);
         } else if (data.type === 'typing') {
           if (data.username !== username) {
@@ -51,6 +56,12 @@ function App() {
 
     return () => socketRef.current?.close();
   }, [isLoggedIn, username]);
+
+  useEffect(() => {       
+    if (chatLogRef.current) {
+      chatLogRef.current.scrollTop = chatLogRef.current.scrollHeight;
+    }
+  }, [chatLog]);
 
   const handleInputChange = (e) => {
     const newMessage = e.target.value;
@@ -104,7 +115,9 @@ function App() {
             </ul>
           </div>
 
-          <div className="chat-log">
+          <div 
+          className="chat-log"
+          ref={chatLogRef}>
             {chatLog.map((msg, idx) => (
               <div key={idx}>
                 {msg.type === 'system' ? (
@@ -121,6 +134,9 @@ function App() {
               type="text"
               value={message}
               onChange={handleInputChange}
+              onKeyDown={(e) => {
+    if (e.key === 'Enter') sendMessage();
+    }}
               placeholder="Bir şeyler yaz..."
             />
             <button onClick={sendMessage}>Gönder</button>
