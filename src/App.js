@@ -9,6 +9,7 @@ function App() {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [typingUser, setTypingUser] = useState("");
   const [inputError, setInputError] = useState("");
+  const [shouldConnect, setShouldConnect] = useState(false);
 
   const socketRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -17,70 +18,72 @@ function App() {
   const socketURL = process.env.REACT_APP_WEBSOCKET_URL;
 
   useEffect(() => {
-    if (!isLoggedIn || socketRef.current) return;
+  if (!shouldConnect || socketRef.current) return;
 
-    socketRef.current = new WebSocket(socketURL);
+  socketRef.current = new WebSocket(socketURL);
 
-    socketRef.current.onopen = () => {
-      socketRef.current.send(
-        JSON.stringify({
-          type: "join",
-          username: username.trim(),
-        })
-      );
-    };
+  socketRef.current.onopen = () => {
+    socketRef.current.send(
+      JSON.stringify({
+        type: "join",
+        username: username.trim(),
+      })
+    );
+  };
 
-    socketRef.current.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
+  socketRef.current.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
 
-        switch (data.type) {
-          case "error":
-            alert(data.content);
-            socketRef.current.close();
-            socketRef.current = null;
-            setUsername("");
-            setIsLoggedIn(false);
-            break;
-          case "userlist":
-            setOnlineUsers(data.users);
-            setIsLoggedIn(true);
-            break;
-          case "typing":
-            if (data.username !== username) {
-              setTypingUser(data.username);
-              clearTimeout(typingTimeoutRef.current);
-              typingTimeoutRef.current = setTimeout(() => setTypingUser(""), 1500);
-            }
-            break;
-          case "message":
-          case "system":
-            setChatLog((prev) => [...prev, data]);
-            break;
-          default:
-            console.warn("Bilinmeyen mesaj tipi:", data);
-        }
-      } catch (err) {
-        console.error("Mesaj ayrıştırılamadı:", err);
+      switch (data.type) {
+        case "error":
+          alert(data.content);
+          socketRef.current.close();
+          socketRef.current = null;
+          setUsername("");
+          setShouldConnect(false);
+          setIsLoggedIn(false);
+          break;
+        case "userlist":
+          setOnlineUsers(data.users);
+          setIsLoggedIn(true);
+          break;
+        case "typing":
+          if (data.username !== username) {
+            setTypingUser(data.username);
+            clearTimeout(typingTimeoutRef.current);
+            typingTimeoutRef.current = setTimeout(() => setTypingUser(""), 1500);
+          }
+          break;
+        case "message":
+        case "system":
+          setChatLog((prev) => [...prev, data]);
+          break;
+        default:
+          console.warn("Bilinmeyen mesaj tipi:", data);
       }
-    };
+    } catch (err) {
+      console.error("Mesaj ayrıştırılamadı:", err);
+    }
+  };
 
-    socketRef.current.onclose = () => {
+  socketRef.current.onclose = () => {
+    socketRef.current = null;
+    setIsLoggedIn(false);
+    setOnlineUsers([]);
+    setChatLog([]);
+    setTypingUser("");
+    setShouldConnect(false);
+  };
+
+  return () => {
+    if (socketRef.current) {
+      socketRef.current.close();
       socketRef.current = null;
-      setIsLoggedIn(false);
-      setOnlineUsers([]);
-      setChatLog([]);
-      setTypingUser("");
-    };
+    }
+  };
+}, [shouldConnect, username]);
 
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.close();
-        socketRef.current = null;
-      }
-    };
-    // eslint-disable-next-line
-  }, [isLoggedIn, username]);
 
   useEffect(() => {
     if (chatLogRef.current) {
@@ -127,7 +130,8 @@ function App() {
       return;
     }
 
-    setUsername(cleaned);;
+    setUsername(cleaned);
+    setShouldConnect(true);
   };
 
   return (
