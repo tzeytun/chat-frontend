@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import "./App.css";
+import RadioPlayer from "./RadioPlayer";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -166,6 +167,9 @@ function App() {
       {isLoggedIn && (
         <div className="chatbox">
           <h2>💬 Chatinyo</h2>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+      <RadioPlayer />
+    </div>
 
           <div className="user-list">
             <strong>Online:</strong>
