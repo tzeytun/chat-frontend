@@ -18,6 +18,44 @@ function App() {
 
   const socketURL = process.env.REACT_APP_WEBSOCKET_URL;
 
+   // ASCII art tespit fonksiyonu - geliştirilmiş
+  const detectAsciiArt = (text) => {
+    if (!text || typeof text !== "string") return false
+
+    // Çok satırlı mı kontrol et
+    const lines = text.split("\n")
+    if (lines.length < 2) return false
+
+    // ASCII art karakterleri
+    const asciiChars = /[│┌┐└┘├┤┬┴┼═║╔╗╚╝╠╣╦╩╬▀▄█▌▐░▒▓■□▪▫◆◇○●◦‣⁃∙•‰‱※‼⁇⁈⁉‖‗''‚‛""„‟†‡•‰‱‴‵‶‷‸‹›※‼‽⁇⁈⁉⁏⁐⁑⁒⁓⁔⁕⁖⁗⁘⁙⁚⁛⁜⁝⁞]/
+
+    // Her satırda ASCII karakter var mı kontrol et
+    let asciiLineCount = 0
+    let totalNonEmptyLines = 0
+
+    lines.forEach((line) => {
+      const trimmedLine = line.trim()
+      if (trimmedLine.length > 0) {
+        totalNonEmptyLines++
+        // ASCII karakterler, tekrarlayan karakterler veya özel desenler
+        if (
+          asciiChars.test(trimmedLine) ||
+          /[─━│┃┄┅┆┇┈┉┊┋]/.test(trimmedLine) ||
+          /[/\\|_\-=+*#@%&<>^~`]/.test(trimmedLine) ||
+          /(.)\1{2,}/.test(trimmedLine) || // Aynı karakterin 3+ kez tekrarı
+          trimmedLine.length > 30
+        ) {
+          // Uzun satırlar genelde ASCII art
+          asciiLineCount++
+        }
+      }
+    })
+
+    // En az 2 satır ve satırların %60'ında ASCII karakter varsa ASCII art
+    return totalNonEmptyLines >= 2 && asciiLineCount / totalNonEmptyLines >= 0.6
+  }
+
+
   useEffect(() => {
     if (!shouldConnect || socketRef.current) return;
 
@@ -180,30 +218,55 @@ function App() {
             </ul>
           </div>
 
+          {/* ASCII Art test butonu */}
+          <div style={{ marginBottom: "1rem", textAlign: "center" }}>
+            <button
+              onClick={addAsciiExample}
+              style={{
+                padding: "0.3rem 0.6rem",
+                fontSize: "0.8rem",
+                background: "#6c757d",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              ASCII Art Örneği Ekle
+            </button>
+          </div>
+
           <div className="chat-log" ref={chatLogRef}>
   {chatLog.map((msg, idx) => {
     const isAscii =
       msg.content.includes('\n') && msg.content.length >= 20; // en az 1 satır atlaması + 20 karakter
 
     return (
-      <div key={idx}>
-        {msg.type === "system" ? (
-          <em style={{ color: "#888" }}>— {msg.content} —</em>
-        ) : (
-          <span>
-            {msg.time ? ` (${msg.time})` : ""} <strong>{msg.username}</strong>:{" "}
-            <span
-            className={isAscii ? "ascii-message" : ""}
-            style={{ whiteSpace: "pre-wrap", display: "inline" }}
-          >
-            {msg.content}
-          </span>
-          </span>
-        )}
-      </div>
-    );
-  })}
-</div>
+                <div key={idx} className="chat-message">
+                  {msg.type === "system" ? (
+                    <em className="system-message">— {msg.content} —</em>
+                  ) : (
+                    <div className="user-message">
+                      <div className="message-header">
+                        {msg.time && <span className="message-time">({msg.time})</span>}
+                        <strong className="message-username">{msg.username}:</strong>
+                      </div>
+                      <div className="message-content">
+                        {isAscii ? (
+                          <div className="ascii-art-container">
+                            <div className="ascii-art-label">🎨 ASCII Art</div>
+                            <pre className="ascii-message">{msg.content}</pre>
+                          </div>
+                        ) : (
+                          <span className="regular-message">{msg.content}</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
 
 
           <div className="input-area">
