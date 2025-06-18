@@ -202,7 +202,7 @@ function App() {
             <iframe
               width="300"
               height="169"
-              src={embedUrl}
+              src={`${embedUrl}?autoplay=1`}
               title="YouTube video"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
