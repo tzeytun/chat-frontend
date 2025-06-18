@@ -197,7 +197,25 @@ function App() {
       {isLoggedIn && (
         <div className="chatbox">
           <h2>💬 Chatinyo</h2>
+          {embedUrl ? (
+          <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+            <iframe
+              width="300"
+              height="169"
+              src={embedUrl}
+              title="YouTube video"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
+        ) : (
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+            <RadioPlayer />
+          </div>
+        )}
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+            
       <RadioPlayer />
     </div>
 
