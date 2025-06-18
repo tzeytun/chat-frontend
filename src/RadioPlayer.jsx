@@ -31,93 +31,47 @@ const stations = [
   },
 ];
 
-const RadioPlayer = () => {
+function RadioPlayer() {
+  const [currentStation, setCurrentStation] = useState(0);
   const audioRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentStationIndex, setCurrentStationIndex] = useState(0);
 
-  const togglePlay = () => {
-    if (!audioRef.current) return;
-
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play().catch((err) => {
-        console.error("Oynatma hatası:", err);
-      });
+  const nextStation = () => {
+    const next = (currentStation + 1) % stations.length;
+    setCurrentStation(next);
+    if (audioRef.current) {
+      audioRef.current.src = stations[next].url;
+      audioRef.current.play();
     }
-
-    setIsPlaying(!isPlaying);
   };
 
-  const changeStation = () => {
-    const nextIndex = (currentStationIndex + 1) % stations.length;
-    setCurrentStationIndex(nextIndex);
-    setIsPlaying(false);
-    setTimeout(() => {
-      if (audioRef.current) {
-        audioRef.current.load();
-        audioRef.current.play().catch((err) => {
-          console.error("Yayın başlatılamadı:", err);
-        });
-        setIsPlaying(true);
-      }
-    }, 100);
+  const handleVolumeChange = (e) => {
+    if (audioRef.current) {
+      audioRef.current.volume = e.target.value;
+    }
   };
 
   return (
-    <div style={{
-      background: "#d9d9d9",
-      border: "2px inset #999",
-      padding: "1rem",
-      borderRadius: "4px",
-      width: "280px",
-      fontFamily: "Verdana, sans-serif",
-      fontSize: "14px",
-      color: "#111",
-      boxShadow: "2px 2px 10px rgba(0,0,0,0.3)",
-      textAlign: "center"
-    }}>
-      <div style={{ marginBottom: "0.5rem", fontWeight: "bold" }}>📻 {stations[currentStationIndex].name}</div>
-
-      <audio ref={audioRef}>
-        <source src={stations[currentStationIndex].url} type="audio/mpeg" />
-        Tarayıcınız ses öğesini desteklemiyor.
-      </audio>
-
-      <div style={{ display: "flex", justifyContent: "center", gap: "0.5rem" }}>
-        <button
-          onClick={togglePlay}
-          style={{
-            backgroundColor: isPlaying ? "#c0392b" : "#27ae60",
-            border: "1px outset #999",
-            borderRadius: "3px",
-            padding: "0.4rem 0.8rem",
-            fontWeight: "bold",
-            cursor: "pointer",
-            fontFamily: "Tahoma, sans-serif"
-          }}
-        >
-          {isPlaying ? "Durdur" : "Dinle"}
-        </button>
-
-        <button
-          onClick={changeStation}
-          style={{
-            backgroundColor: "#3498db",
-            border: "1px outset #999",
-            borderRadius: "3px",
-            padding: "0.4rem 0.8rem",
-            fontWeight: "bold",
-            cursor: "pointer",
-            fontFamily: "Tahoma, sans-serif"
-          }}
-        >
-          İstasyon Değiştir
-        </button>
+    <div className="radio-player">
+      <div className="radio-screen">
+        <span>{stations[currentStation].name}</span>
       </div>
+      <div className="radio-controls">
+        <button onClick={nextStation} title="İstasyonu Değiştir">
+          ▶️
+        </button>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          defaultValue="1"
+          onChange={handleVolumeChange}
+          title="Ses"
+        />
+      </div>
+      <audio ref={audioRef} src={stations[currentStation].url} autoPlay />
     </div>
   );
-};
+}
 
 export default RadioPlayer;

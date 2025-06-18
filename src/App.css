@@ -148,6 +148,55 @@ body, html {
   text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
 }
 
+/* === Retro Radyo Player Stil === */
+.radio-player {
+  background: linear-gradient(to bottom, #cfd8dc, #b0bec5);
+  border: 2px inset #888;
+  padding: 1rem;
+  border-radius: 6px;
+  font-family: 'Verdana', 'Tahoma', sans-serif;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+  text-align: center;
+  max-width: 100%;
+}
+
+.radio-screen {
+  background-color: #333;
+  color: #0f0;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  border: 2px inset #222;
+  font-size: 1rem;
+  text-shadow: 0 0 4px #0f0;
+}
+
+.radio-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.radio-controls button {
+  background: #e0e0e0;
+  border: 2px outset #aaa;
+  padding: 0.4rem 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1rem;
+  box-shadow: inset 1px 1px 2px #fff;
+}
+
+.radio-controls button:active {
+  border: 2px inset #aaa;
+}
+
+.radio-controls input[type="range"] {
+  accent-color: #0078d7;
+  cursor: pointer;
+}
+
 @media (max-width: 600px) {
   .chatbox, .modal {
     padding: 1.2rem;
