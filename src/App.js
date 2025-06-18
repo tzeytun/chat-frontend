@@ -262,7 +262,24 @@ function App() {
 
 <div className="chat-log" ref={chatLogRef}>
   {chatLog.map((msg, idx) => (
-    <div key={idx}>
+    <div key={idx}
+    style={{
+    backgroundColor:
+      msg.username.toLowerCase() === "admin"
+        ? "#fff3cd"
+        : msg.username.toLowerCase() === "mod"
+        ? "#e2e3e5"
+        : "transparent",
+    padding: "6px 10px",
+    borderRadius: "6px",
+    margin: "4px 0",
+    borderLeft:
+      msg.username.toLowerCase() === "admin"
+        ? "4px solid gold"
+        : msg.username.toLowerCase() === "mod"
+        ? "4px solid #007bff"
+        : "none",
+  }}>
       {msg.type === "system" ? (
         <em style={{ color: "#888" }}>— {msg.content} —</em>
       ) : (
