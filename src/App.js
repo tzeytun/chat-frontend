@@ -247,10 +247,19 @@ function App() {
             
     </div>
 
-         <div className="user-list" style={{ maxHeight: "90px", overflowY: "auto" }}>
+         <div className="user-list" style={{ maxHeight: "30px", overflowY: "auto" }}>
   <strong>Online:</strong>
   <ul>
-    {onlineUsers.map((user, idx) => (
+    {[...onlineUsers]
+    .sort((a, b) => {
+      const priority = (u) => {
+        if (u.toLowerCase() === "admin") return 0;
+        if (u.toLowerCase() === "mod") return 1;
+        return 2;
+      };
+      return priority(a) - priority(b);
+    })
+    .map((user, idx) => (
       <li key={idx} style={{ color: usernameColors[user] || "#000" }}>
         {user}
         {user.toLowerCase() === "admin" && "👑 "}
