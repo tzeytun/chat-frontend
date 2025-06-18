@@ -18,13 +18,12 @@ function getYouTubeVideoId(url) {
 }
 
 function generateColorFromUsername(username) {
-  const hash = [...username].reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const colors = [
-    "#e6194b", "#3cb44b", "#ffe119", "#4363d8",
-    "#f58231", "#911eb4", "#46f0f0", "#f032e6",
-    "#bcf60c", "#fabebe", "#008080", "#e6beff"
-  ];
-  return colors[hash % colors.length];
+  let hash = 0;
+  for (let i = 0; i < username.length; i++) {
+    hash = username.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue}, 70%, 50%)`;
 }
 
 
@@ -84,6 +83,17 @@ function App() {
           case "userlist":
             setOnlineUsers(data.users);
             setIsLoggedIn(true);
+
+            // Kullanıcı adı renklerini atama
+  setUsernameColors((prev) => {
+    const updatedColors = { ...prev };
+    data.users.forEach((user) => {
+      if (!updatedColors[user]) {
+        updatedColors[user] = generateColorFromUsername(user);
+      }
+    });
+    return updatedColors;
+  });
             break;
           case "typing":
             if (data.username !== username) {
@@ -94,12 +104,6 @@ function App() {
             break;
           case "message":
           case "system":
-            if (!usernameColors[data.username]) {
-          setUsernameColors((prev) => ({
-            ...prev,
-            [data.username]: generateColorFromUsername(data.username),
-          }));
-        }
             {
           const isPrivileged = data.username === "admin" || data.username === "mod";
           const ytRegex = /https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/\S*/gi;
