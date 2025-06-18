@@ -247,7 +247,7 @@ function App() {
             
     </div>
 
-         <div className="user-list">
+         <div className="user-list" style={{ maxHeight: "150px", overflowY: "auto" }}>
   <strong>Online:</strong>
   <ul>
     {onlineUsers.map((user, idx) => (
