@@ -1,13 +1,13 @@
 import React, { useRef, useState } from "react";
 
 const stations = [
+    {
+    name: "Dance Wave!",
+    url: "https://dancewave.online/dance.mp3"
+  },
   {
     name: "Classic Vinyl HD",
     url: "https://icecast.walmradio.com:8443/classic"
-  },
-  {
-    name: "Dance Wave!",
-    url: "https://dancewave.online/dance.mp3"
   },
   {
     name: "Adroit Jazz Underground",

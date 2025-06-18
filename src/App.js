@@ -2,6 +2,22 @@ import { useState, useEffect, useRef } from "react";
 import "./App.css";
 import RadioPlayer from "./RadioPlayer";
 
+function getYouTubeVideoId(url) {
+  try {
+    const yt = new URL(url);
+    if (yt.hostname === "youtu.be") {
+      return yt.pathname.slice(1);
+    }
+    if (yt.hostname.includes("youtube.com")) {
+      return new URLSearchParams(yt.search).get("v");
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+
 function App() {
   const [username, setUsername] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -11,6 +27,7 @@ function App() {
   const [typingUser, setTypingUser] = useState("");
   const [inputError, setInputError] = useState("");
   const [shouldConnect, setShouldConnect] = useState(false);
+  const [embedUrl, setEmbedUrl] = useState(null);
 
   const socketRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -64,6 +81,19 @@ function App() {
             break;
           case "message":
           case "system":
+            {
+          const isPrivileged = data.username === "admin" || data.username === "mod";
+          const ytRegex = /https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/\S*/gi;
+          const foundLink = data.content.match(ytRegex);
+
+          if (isPrivileged && foundLink) {
+            const videoId = getYouTubeVideoId(foundLink[0]);
+            if (videoId) {
+              setEmbedUrl(`https://www.youtube.com/embed/${videoId}`);
+            }
+          }
+         }
+
             setChatLog((prev) => [...prev, data]);
             break;
           default:
