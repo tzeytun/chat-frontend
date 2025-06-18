@@ -17,6 +17,17 @@ function getYouTubeVideoId(url) {
   }
 }
 
+function generateColorFromUsername(username) {
+  const hash = [...username].reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const colors = [
+    "#e6194b", "#3cb44b", "#ffe119", "#4363d8",
+    "#f58231", "#911eb4", "#46f0f0", "#f032e6",
+    "#bcf60c", "#fabebe", "#008080", "#e6beff"
+  ];
+  return colors[hash % colors.length];
+}
+
+
 
 function App() {
   const [username, setUsername] = useState("");
@@ -28,6 +39,8 @@ function App() {
   const [inputError, setInputError] = useState("");
   const [shouldConnect, setShouldConnect] = useState(false);
   const [embedUrl, setEmbedUrl] = useState(null);
+  const [usernameColors, setUsernameColors] = useState({});
+
 
   const socketRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -81,6 +94,12 @@ function App() {
             break;
           case "message":
           case "system":
+            if (!usernameColors[data.username]) {
+          setUsernameColors((prev) => ({
+            ...prev,
+            [data.username]: generateColorFromUsername(data.username),
+          }));
+        }
             {
           const isPrivileged = data.username === "admin" || data.username === "mod";
           const ytRegex = /https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/\S*/gi;
@@ -218,28 +237,35 @@ function App() {
             
     </div>
 
-          <div className="user-list">
-            <strong>Online:</strong>
-            <ul>
-              {onlineUsers.map((user, idx) => (
-                <li key={idx}>{user}</li>
-              ))}
-            </ul>
-          </div>
+         <div className="user-list">
+  <strong>Online:</strong>
+  <ul>
+    {onlineUsers.map((user, idx) => (
+      <li key={idx} style={{ color: usernameColors[user] || "#000" }}>
+        {user}
+      </li>
+    ))}
+  </ul>
+</div>
 
-          <div className="chat-log" ref={chatLogRef}>
-            {chatLog.map((msg, idx) => (
-              <div key={idx}>
-                {msg.type === "system" ? (
-                  <em style={{ color: "#888" }}>— {msg.content} —</em>
-                ) : (
-                  <span>
-                    {msg.time ? ` (${msg.time})` : ""} <strong>{msg.username}</strong>: {msg.content}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
+<div className="chat-log" ref={chatLogRef}>
+  {chatLog.map((msg, idx) => (
+    <div key={idx}>
+      {msg.type === "system" ? (
+        <em style={{ color: "#888" }}>— {msg.content} —</em>
+      ) : (
+        <span>
+          {msg.time ? ` (${msg.time})` : ""}{" "}
+          <strong style={{ color: usernameColors[msg.username] || "#000" }}>
+            {msg.username}
+          </strong>
+          : {msg.content}
+        </span>
+      )}
+    </div>
+  ))}
+</div>
+
 
           <div className="input-area">
             <input
