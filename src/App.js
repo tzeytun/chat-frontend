@@ -192,9 +192,9 @@ function App() {
         ) : (
           <span>
             {msg.time ? ` (${msg.time})` : ""} <strong>{msg.username}</strong>:{" "}
-            <span className={isAscii ? "ascii-message" : ""}>
-              {msg.content.split("\\n").join("\n")}
-            </span>
+            <pre className={isAscii ? "ascii-message" : ""}>
+              {msg.content}
+            </pre>
           </span>
         )}
       </div>
