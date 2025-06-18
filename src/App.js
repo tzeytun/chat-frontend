@@ -18,6 +18,12 @@ function getYouTubeVideoId(url) {
 }
 
 function generateColorFromUsername(username) {
+
+  const lower = username.toLowerCase();
+  if (lower === "admin") return "#e74c3c"; // kırmızı
+  if (lower === "mod") return "#3498db";   // mavi
+
+  // Diğer kullanıcılar için rastgele renk
   let hash = 0;
   for (let i = 0; i < username.length; i++) {
     hash = username.charCodeAt(i) + ((hash << 5) - hash);
@@ -247,6 +253,8 @@ function App() {
     {onlineUsers.map((user, idx) => (
       <li key={idx} style={{ color: usernameColors[user] || "#000" }}>
         {user}
+        {user.toLowerCase() === "admin" && "👑 "}
+        {user.toLowerCase() === "mod" && "🛡️ "}
       </li>
     ))}
   </ul>
@@ -262,6 +270,8 @@ function App() {
           {msg.time ? ` (${msg.time})` : ""}{" "}
           <strong style={{ color: usernameColors[msg.username] || "#000" }}>
             {msg.username}
+            {msg.username.toLowerCase() === "admin" && "👑 "}
+            {msg.username.toLowerCase() === "mod" && "🛡️ "}
           </strong>
           : {msg.content}
         </span>
