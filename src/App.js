@@ -181,18 +181,27 @@ function App() {
           </div>
 
           <div className="chat-log" ref={chatLogRef}>
-            {chatLog.map((msg, idx) => (
-              <div key={idx}>
-                {msg.type === "system" ? (
-                  <em style={{ color: "#888" }}>— {msg.content} —</em>
-                ) : (
-                  <span>
-                    {msg.time ? ` (${msg.time})` : ""} <strong>{msg.username}</strong>: {msg.content}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
+  {chatLog.map((msg, idx) => {
+    const isAscii =
+      msg.content.includes('\n') && msg.content.length >= 20; // en az 1 satır atlaması + 20 karakter
+
+    return (
+      <div key={idx}>
+        {msg.type === "system" ? (
+          <em style={{ color: "#888" }}>— {msg.content} —</em>
+        ) : (
+          <span>
+            {msg.time ? ` (${msg.time})` : ""} <strong>{msg.username}</strong>:{" "}
+            <span className={isAscii ? "ascii-message" : ""}>
+              {msg.content}
+            </span>
+          </span>
+        )}
+      </div>
+    );
+  })}
+</div>
+
 
           <div className="input-area">
             <input
