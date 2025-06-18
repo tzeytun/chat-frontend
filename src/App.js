@@ -216,7 +216,6 @@ function App() {
         )}
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
             
-      <RadioPlayer />
     </div>
 
           <div className="user-list">
