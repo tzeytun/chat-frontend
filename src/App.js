@@ -247,7 +247,7 @@ function App() {
             
     </div>
 
-         <div className="user-list" style={{ maxHeight: "30px", overflowY: "auto" }}>
+         <div className="user-list" style={{ maxHeight: "90px", overflowY: "auto" }}>
   <strong>Online:</strong>
   <ul>
     {[...onlineUsers]
