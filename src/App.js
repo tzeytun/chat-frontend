@@ -192,9 +192,12 @@ function App() {
         ) : (
           <span>
             {msg.time ? ` (${msg.time})` : ""} <strong>{msg.username}</strong>:{" "}
-            <pre className={isAscii ? "ascii-message" : ""}>
-              {msg.content}
-            </pre>
+            <span
+            className={isAscii ? "ascii-message" : ""}
+            style={{ whiteSpace: "pre-wrap", display: "inline" }}
+          >
+            {msg.content}
+          </span>
           </span>
         )}
       </div>
