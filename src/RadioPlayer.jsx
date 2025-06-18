@@ -51,12 +51,12 @@ function RadioPlayer() {
   };
 
   return (
-    <div className="radio-player">
-      <div className="radio-screen">
+    <div className="radio-player" style={{ maxWidth: "220px", padding: "0.8rem" }}>
+      <div className="radio-screen" style={{ fontSize: "0.85rem", padding: "0.4rem 0.8rem" }}>
         <span>{stations[currentStation].name}</span>
       </div>
-      <div className="radio-controls">
-        <button onClick={nextStation} title="İstasyonu Değiştir">
+      <div className="radio-controls" style={{ gap: "0.6rem" }}>
+        <button onClick={nextStation} title="İstasyonu Değiştir" style={{ fontSize: "0.9rem", padding: "0.3rem 0.6rem" }}>
           ▶️
         </button>
         <input
@@ -67,6 +67,7 @@ function RadioPlayer() {
           defaultValue="1"
           onChange={handleVolumeChange}
           title="Ses"
+          style={{ width: "90px" }}
         />
       </div>
       <audio ref={audioRef} src={stations[currentStation].url} autoPlay />
@@ -75,3 +76,4 @@ function RadioPlayer() {
 }
 
 export default RadioPlayer;
+
