@@ -178,6 +178,32 @@ function App() {
     setShouldConnect(true);
   };
 
+  // ASCII art örneği eklemek için test fonksiyonu
+  const addAsciiExample = () => {
+    const asciiExample = `
+╔══════════════════════════════╗
+║          ASCII ART           ║
+║                              ║
+║    ░░░░░░░░░░░░░░░░░░░░░░    ║
+║    ░░██████░░██████░░░░░░    ║
+║    ░░██████░░██████░░░░░░    ║
+║    ░░░░░░░░░░░░░░░░░░░░░░    ║
+║    ░░░░██████████░░░░░░░░    ║
+║    ░░░░░░████████░░░░░░░░    ║
+║    ░░░░░░░░░░░░░░░░░░░░░░    ║
+╚══════════════════════════════╝`
+
+    setChatLog((prev) => [
+      ...prev,
+      {
+        type: "message",
+        username: "System",
+        content: asciiExample.trim(),
+        time: new Date().toLocaleTimeString(),
+      },
+    ])
+  }
+
   return (
     <div className={`app-container ${!isLoggedIn ? "blurred" : ""}`}>
       {!isLoggedIn && (
