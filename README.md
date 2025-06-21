@@ -71,7 +71,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the app in the brows
 │   ├── App.js
 │   ├── RadioPlayer.jsx
 │   └── index.js
-├── .env.example
+├── .env
 └── README.md
 ```
 
