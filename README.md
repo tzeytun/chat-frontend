@@ -1,70 +1,124 @@
-# Getting Started with Create React App
+# Chat Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+CHAT is a real-time chat frontend built with **React** and **WebSocket**, designed for a fun and interactive experience. It features online user tracking, typing indicators, role-based badges, and embedded YouTube video handling for admin/moderator privileges.
 
-## Available Scripts
+> This project is developed using [Create React App](https://create-react-app.dev/).
 
-In the project directory, you can run:
 
-### `npm start`
+## Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Username validation and login
+- Real-time WebSocket messaging
+- YouTube embed for links shared by admin/mod
+- Radio fallback when no video is active
+- Online user list with role-based badges (👑 Admin, 🛡️ Mod)
+- Typing indicator
+- Auto-generated username colors
+- Error handling (username taken, cooldown)
+- Scrollable chat history
+- No external authentication (nickname-based ephemeral sessions)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
-### `npm test`
+## Tech Stack
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- React (with Hooks)
+- WebSocket (via native `WebSocket` API)
+- Custom CSS
+- Environment-based config (`.env`)
 
-### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Setup & Installation
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 1. Clone the repository
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+git clone https://github.com/your-username/chat-frontend.git
+cd chat-frontend
+````
 
-### `npm run eject`
+### 2. Install dependencies
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+npm install
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 3. Configure Environment
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Create a `.env` file in the root directory:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```
+REACT_APP_WEBSOCKET_URL=ws://localhost:8080/ws
+```
 
-## Learn More
+Make sure it points to the correct backend WebSocket endpoint.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 4. Run the development server
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm start
+```
 
-### Code Splitting
+Open [http://localhost:3000](http://localhost:3000) to view the app in the browser.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
 
-### Analyzing the Bundle Size
+## File Structure
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```
+.
+├── public/
+├── src/
+│   ├── App.css
+│   ├── App.js
+│   ├── RadioPlayer.jsx
+│   └── index.js
+├── .env.example
+└── README.md
+```
 
-### Making a Progressive Web App
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Environment Variables
 
-### Advanced Configuration
+| Variable Name             | Description                                                 |
+| ------------------------- | ----------------------------------------------------------- |
+| `REACT_APP_WEBSOCKET_URL` | WebSocket backend endpoint (e.g., `ws://localhost:8080/ws`) |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+---
 
-### Deployment
+## YouTube Embed Logic
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+If an admin or mod user shares a YouTube link, the video will be auto-embedded in the chat area using:
 
-### `npm run build` fails to minify
+```js
+https://www.youtube.com/embed/<videoId>?autoplay=1
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Roles & Colors
+
+* `admin` → 👑 Red-colored name, golden message border
+* `mod` → 🛡️ Blue-colored name, blue message border
+* Others → Auto-generated pastel HSL colors
+
+
+## TODO / Ideas
+
+* Persistent chat log (localStorage or backend)
+* Authentication & tokens
+* AI integration (e.g., summarization, moderation)
+
+---
+
+## License
+
+MIT License. See [LICENSE](LICENSE) for more information.
+
+---
+
+## Acknowledgements
+
+Thanks to:
+
+* [React](https://reactjs.org/)
+* [Create React App](https://create-react-app.dev/)
+* [YouTube Embed Docs](https://developers.google.com/youtube/player_parameters)
+
